@@ -1,0 +1,304 @@
+<style>
+    body#en__pagebuilder overlay#loadingOverlay {
+        display: none !important;
+    }
+
+    body:not(#en__pagebuilder) overlay#loadingOverlay {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        min-width: 100vw !important;
+        min-height: 100vh !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background-color: #f9f9f9 !important;
+        color: #585858 !important;
+        z-index: 2147483647 !important;
+        cursor: wait !important;
+        font-family: "Trebuchet MS", Helvetica, sans-serif;
+        font-weight: initial !important;
+        font-size: 2rem;
+        opacity: 1;
+    }
+
+    spinner {
+        margin-left: 0.5rem;
+    }
+
+    spinner>ball {
+        width: .35rem;
+        height: .35rem;
+        background-color: #585858;
+        border-radius: 100%;
+        display: inline-block;
+        -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+        animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+    }
+
+    spinner .bounce1 {
+        -webkit-animation-delay: -0.32s;
+        animation-delay: -0.32s;
+    }
+
+    spinner .bounce2 {
+        -webkit-animation-delay: -0.16s;
+        animation-delay: -0.16s;
+    }
+
+    @-webkit-keyframes sk-bouncedelay {
+
+        0%,
+        80%,
+        100% {
+            -webkit-transform: scale(0)
+        }
+
+        40% {
+            -webkit-transform: scale(1.0)
+        }
+    }
+
+    @keyframes sk-bouncedelay {
+
+        0%,
+        80%,
+        100% {
+            -webkit-transform: scale(0);
+            transform: scale(0);
+        }
+
+        40% {
+            -webkit-transform: scale(1.0);
+            transform: scale(1.0);
+        }
+    }
+
+
+    #instantGivingLinks {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+    }
+
+    #instantGivingLinks a.giftLink {
+        font-size: 25px;
+        color: #ffffff;
+        background: #009943;
+        display: block;
+        margin: 0 0 1rem 0;
+        font-family: inherit;
+        padding: 0.85rem 1rem;
+        -webkit-appearance: none;
+        border: 1px solid transparent;
+        border-radius: 0.1875rem;
+        -webkit-transition: background-color 0.25s ease-out, color 0.25s ease-out;
+        transition: background-color 0.25s ease-out, color 0.25s ease-out;
+        font-size: 1rem;
+        text-align: center;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        flex-basis: calc(50% - 40px);
+        flex-direction: column;
+        margin: .1em;
+    }
+
+    a.giftLink {
+        font-size: 25px;
+        color: #ffffff;
+        background: #009943;
+        display: block;
+        margin: 0 0 1rem 0;
+        font-family: inherit;
+        padding: 0.85rem 1rem;
+        -webkit-appearance: none;
+        border: 1px solid transparent;
+        border-radius: 0.1875rem;
+        -webkit-transition: background-color 0.25s ease-out, color 0.25s ease-out;
+        transition: background-color 0.25s ease-out, color 0.25s ease-out;
+        font-size: 1rem;
+        text-align: center;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        flex-basis: calc(50% - 40px);
+        flex-direction: column;
+        margin: .1em;
+    }
+
+    #instantGivingLinks {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+    }
+</style>
+
+<overlay id="loadingOverlay">Loading
+    <spinner class="spinner">
+        <ball class="bounce1"></ball>
+        <ball class="bounce2"></ball>
+        <ball class="bounce3"></ball>
+    </spinner>
+</overlay>
+
+<span id="instantGivingLinks"></span>
+
+
+
+<script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        // Look for server side errors. If any exist, about the process
+        const serverSideError = document.querySelector('.en__errorHeader');
+        if (serverSideError) {
+            console.log('Server side error detected');
+            removeOverlay();
+        } else {
+            // Get all URL parameters
+            // REF: https://www.sitepoint.com/get-url-parameters-with-javascript/
+            const queryString = window.location.search;
+            console.log(queryString);
+            const urlParams = new URLSearchParams(queryString);
+
+            console.log('No server side error detected');
+            // Check if the page was "chain"ed from a previous page.
+            // If so, then we need to write our own code to get populate gift frequency and gift amount form the URL
+            // For some reason those values do not auto populate based on the URL when chained from another page
+            if (urlParams.has('chain')) {
+                console.log('This page was chained from another page');
+                checkUrlParameterGivingFrequency();
+                checkUrlParameterGivingAmount();
+            } else {
+                console.log('This page was not chained from another page');
+            }
+
+            // Check if "autosubmit=Y" is present in the URL
+            checkUrlParameterAutoSubmit();
+        }
+    });
+
+    function checkUrlParameterAutoSubmit() {
+        // Get all URL parameters
+        // REF: https://www.sitepoint.com/get-url-parameters-with-javascript/
+        const queryString = window.location.search;
+        console.log(queryString);
+        const urlParams = new URLSearchParams(queryString);
+
+        const urParameterAutoSubmit = urlParams.get('autosubmit');
+        if (urParameterAutoSubmit == 'Y') {
+            console.log('"autosubmit=Y" argument present in URL');
+
+            const submitButton = document.querySelector("form .en__submit button");
+            if (submitButton) {
+                console.log('Submit button detected and clicked');
+                // e.preventDefault();
+                submitButton.click();
+                clientSideErrorCheck();
+            } else {
+                console.log('Submit button not detected');
+                removeOverlay();
+            }
+        } else {
+            console.log('"autosubmit=Y" argument not present in URL');
+            removeOverlay();
+        }
+    }
+
+    function clientSideErrorCheck() {
+        const clientSideError = document.querySelector('.en__field__error');
+        if (clientSideError) {
+            console.log('Client side error detected');
+            removeOverlay();
+        } else {
+            console.log('No client side error detected');
+        }
+    }
+
+    function checkUrlParameterGivingAmount() {
+        // Get all URL parameters
+        // REF: https://www.sitepoint.com/get-url-parameters-with-javascript/
+        const queryString = window.location.search;
+        console.log(queryString);
+        const urlParams = new URLSearchParams(queryString);
+
+        const urlParameterGivingAmount = urlParams.get('transaction.donationAmt');
+        if (urlParameterGivingAmount) {
+            console.log('Giving Amount Paramter in URL detected as "' + urlParameterGivingAmount + '"');
+            const recurringOtherAmountInput = document.querySelector('input[name="transaction.donationAmt.other"]');
+            if (recurringOtherAmountInput) {
+                console.log('Giving Amount Other Input detected and set to passed in value');
+                recurringOtherAmountInput.value = urlParameterGivingAmount;
+            } else {
+                console.log('Giving Amount Amount Other Input not detected');
+            }
+        } else {
+            console.log('No Giving Amount Paramter in URL detected');
+        }
+    }
+
+    function checkUrlParameterGivingFrequency() {
+        // Get all URL parameters
+        // REF: https://www.sitepoint.com/get-url-parameters-with-javascript/
+        const queryString = window.location.search;
+        console.log(queryString);
+        const urlParams = new URLSearchParams(queryString);
+
+        const urlParameterGivingFrequency = urlParams.get('transaction.recurrfreq');
+        if (urlParameterGivingFrequency) {
+            console.log('Giving Frequency Paramter in URL detected as "' + urlParameterGivingFrequency + '"');
+            const recurringFrequencyInput = document.querySelector('input[value="' + urlParameterGivingFrequency + '"][name="transaction.recurrfreq"]');
+            if (recurringFrequencyInput) {
+                console.log('Giving Frequency Input with passed in value detected and checked');
+                recurringFrequencyInput.checked = true;
+            } else {
+                console.log('Giving Frequency Input with passed in value not detected');
+            }
+        } else {
+            console.log('No Giving Frequency Paramter in URL detected');
+        }
+    }
+
+    function removeOverlay() {
+        const loadingOverlay = document.querySelector('overlay#loadingOverlay');
+        if (loadingOverlay) {
+            console.log('Deleting loading overlay')
+            loadingOverlay.parentNode.removeChild(loadingOverlay);
+        } else {
+            console.log('Loading overlay not found')
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', (event) => {
+        instantGivingLinks();
+    });
+
+    function instantGivingLinks() {
+        // Look for "<span id="instantGivingLinks"></span>"
+        const instantGivingLinks = document.querySelector('#instantGivingLinks');
+        if (instantGivingLinks) {
+            console.log("Instant giving placeholder span detected");
+            let giftAmt = "{receipt_data~amount}";
+            console.log(giftAmt);
+
+            giftAmt = giftAmt.substr(1);
+            console.log(giftAmt);
+
+            giftAmt = parseFloat(giftAmt);
+            console.log(giftAmt);
+
+            if (isNaN(giftAmt)) { giftAmt = 5; }
+            const g1 = (giftAmt * .25).toFixed(2);
+            const g2 = (giftAmt * .50).toFixed(2);
+            const g3 = (giftAmt * .75).toFixed(2);
+            const g4 = giftAmt;
+            const url = "https://act.whitecoatwaste.org/page/21504/donate/1?chain&autosubmit=Y&transaction.recurrfreq=N&transaction.donationAmt=";
+            // const url = "https://netdonor.net/page/65483/donate/1?chain&autosubmit=Y&transaction.recurrfreq=N&transaction.donationAmt=";
+            const instantGivingLinksHTML = '<a class="giftLink" href="' + url + g1 + '">Give 25% more: $' + g1 + '</a><a class="giftLink" href="' + url + g2 + '">Give 50% more: $' + g2 + '</a><a class="giftLink" href="' + url + g3 + '">Give 75% more: $' + g3 + '</a><a class="giftLink" href="' + url + g4 + '">Give 100% more: $' + g4 + '</a>'
+            instantGivingLinks.innerHTML = instantGivingLinksHTML;
+        } else {
+            console.log("Instant giving placeholder span not detected");
+        }
+    }
+</script>
